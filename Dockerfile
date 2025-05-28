@@ -5,8 +5,6 @@ ENV TZ=Etc/UTC
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8   
 
-WORKDIR /a
-
 # Setup cross compilers
 RUN dpkg --add-architecture i386 && \
     apt-get -y update && \
@@ -22,20 +20,30 @@ RUN dpkg --add-architecture i386 && \
     gcc-s390x-linux-gnu \
     # gcc-powerpc64le-linux-gnu \
     gcc-riscv64-linux-gnu
-RUN mkdir crosscompilers && \
-    cd crosscompilers && \
-    wget -q https://musl.cc/arm-linux-musleabihf-cross.tgz && \
+
+WORKDIR /a/crosscompilers
+
+ARG TOOLCHAIN_RELEASE_BASE_URL
+
+RUN wget -q ${TOOLCHAIN_RELEASE_BASE_URL}/arm-linux-musleabihf-cross.tgz && \
+    # wget https://musl.cc/arm-linux-musleabihf-cross.tgz
     # wget https://ericsink.com/arm-linux-musleabihf-cross.tgz
     tar --strip-components=1 -zxf ./arm-linux-musleabihf-cross.tgz && \
-    wget -q https://musl.cc/aarch64-linux-musl-cross.tgz && \
+    wget -q ${TOOLCHAIN_RELEASE_BASE_URL}/aarch64-linux-musl-cross.tgz && \
+    # wget https://musl.cc/aarch64-linux-musl-cross.tgz
     # wget https://ericsink.com/aarch64-linux-musl-cross.tgz
     tar --strip-components=1 -zxf aarch64-linux-musl-cross.tgz && \
-    wget -q https://musl.cc/s390x-linux-musl-cross.tgz && \
+    wget -q ${TOOLCHAIN_RELEASE_BASE_URL}/s390x-linux-musl-cross.tgz && \
+    # wget https://musl.cc/s390x-linux-musl-cross.tgz
     tar --strip-components=1 -zxf s390x-linux-musl-cross.tgz && \
-    wget -q https://musl.cc/riscv64-linux-musl-cross.tgz && \
+    wget -q ${TOOLCHAIN_RELEASE_BASE_URL}/riscv64-linux-musl-cross.tgz && \
+    # wget https://musl.cc/riscv64-linux-musl-cross.tgz
     tar --strip-components=1 -zxf riscv64-linux-musl-cross.tgz && \
-    wget -q https://toolchains.bootlin.com/downloads/releases/toolchains/powerpc64le-power8/tarballs/powerpc64le-power8--glibc--stable-2024.05-1.tar.xz && \
+    wget -q ${TOOLCHAIN_RELEASE_BASE_URL}/powerpc64le-power8--glibc--stable-2024.05-1.tar.xz && \
+    # wget https://toolchains.bootlin.com/downloads/releases/toolchains/powerpc64le-power8/tarballs/powerpc64le-power8--glibc--stable-2024.05-1.tar.xz
     tar --strip-components=1 -xJf powerpc64le-power8--glibc--stable-2024.05-1.tar.xz
+
+WORKDIR /a
 
 COPY --link . .
 

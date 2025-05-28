@@ -103,6 +103,7 @@ jobs:
         --output=type=local,dest=.
         --cache-to type=gha
         --cache-from type=gha
+        --build-arg TOOLCHAIN_RELEASE_BASE_URL=https://github.com/${{ github.repository }}/releases/download/crosscompilers
         -f ./cb/Dockerfile
         .
     - name: Build (Android)
