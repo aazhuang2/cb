@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 AS build
+FROM ubuntu:18.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
@@ -31,6 +31,8 @@ EOF
 
 ENV PATH="$PATH:/usr/share/dotnet"
 
+FROM builder AS packager
+
 # run build scripts
 RUN --mount=type=bind,from=project_root,target=/a/cb,rw <<EOF
 set -e
@@ -43,11 +45,15 @@ for f in linux_e_sqlite3_{x86,x64,arm64,armhf,armsf}.sh; do
 done
 wait
 
+cd /a/cb/SQLitePCLRaw.lib.e_sqlite3
+dotnet pack
+
 mkdir /output
 cp -r /a/cb/bld/bin/* /output
+cp -r /a/cb/nupkgs/* /output
 EOF
 
 # pull end build products out into scratch image to simplify extraction
 FROM scratch
 
-COPY --from=build /output /
+COPY --from=packager /output /
